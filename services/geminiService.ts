@@ -2,8 +2,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { VideoContextData } from "../types";
 import type { AnalysisResult, AnalysisMode } from '../types';
 
-// Using gemini-3-pro-preview as design diagnostic is a complex reasoning task
-export const ACTIVE_MODEL = 'gemini-3-pro-preview';
+// Switching to gemini-3-flash-preview to avoid 429 Quota Exceeded errors.
+// Flash is faster and has higher rate limits for free tier API keys.
+export const ACTIVE_MODEL = 'gemini-3-flash-preview';
 
 const analysisSchema = {
   type: Type.OBJECT,
@@ -73,7 +74,7 @@ export const analyzeAsset = async (
     context: VideoContextData
 ): Promise<AnalysisResult> => {
     
-    // Always use the process.env.API_KEY string directly in the constructor
+    // Using the process.env.API_KEY string directly
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     console.debug(`[Vision Lab] Initiating diagnostic with model: ${ACTIVE_MODEL}`);
@@ -113,7 +114,6 @@ Since this is an ${context.assetType}, adjust your diagnostic logic to prioritiz
             }
         });
         
-        // Correctly accessing the text property from GenerateContentResponse
         const responseText = response.text;
         if (!responseText) throw new Error("Analysis failed - empty response.");
         const data = JSON.parse(responseText);
@@ -121,6 +121,10 @@ Since this is an ${context.assetType}, adjust your diagnostic logic to prioritiz
 
     } catch (error: any) {
         console.error("AI Lab Error:", error);
+        // Handle specific 429 error message for user
+        if (error.message?.includes("429")) {
+          throw new Error("Quota exceeded for the AI engine. Please wait a minute and try again, or check your API billing status.");
+        }
         throw new Error(error.message || "Neural analysis interrupted. Please check your asset and try again.");
     }
 };
