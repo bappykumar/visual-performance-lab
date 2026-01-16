@@ -1,0 +1,5 @@
+{
+  "name": "YouTube Thumbnail Analyzer",
+  "description": "Upload your YouTube thumbnail to analyze its effectiveness, get a VidIQ-style score, and receive suggestions for improvement.",
+  "requestFramePermissions": []
+}
