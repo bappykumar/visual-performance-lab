@@ -86,11 +86,11 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
   const metrics = useMemo(() => {
     const s = result.score;
     return [
-      { label: 'Clarity', value: Math.round(s * 0.91) }, // Instructions range: 85-90%, adjusted slightly to match example 74-78 for score 82
-      { label: 'Contrast', value: Math.round(s * 0.84) }, // Instructions range: 80-85%
-      { label: 'Focus', value: Math.round(s * 0.87) },   // Instructions range: 85-88%
-      { label: 'Emotion', value: Math.round(s * 0.76) }, // Instructions range: 70-78%
-      { label: 'Uniqueness', value: Math.round(s * 0.71) }, // Instructions range: 65-75%
+      { label: 'Clarity', value: Math.round(s * 0.91) }, 
+      { label: 'Contrast', value: Math.round(s * 0.84) }, 
+      { label: 'Focus', value: Math.round(s * 0.87) },   
+      { label: 'Emotion', value: Math.round(s * 0.76) }, 
+      { label: 'Uniqueness', value: Math.round(s * 0.71) }, 
     ];
   }, [result.score]);
 
@@ -135,6 +135,15 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
                {result.imageDescription}
              </p>
           </section>
+
+          {result.engagementPrediction && (
+            <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm border-l-4 border-l-amber-500/50">
+               <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Performance Prediction</h3>
+               <p className="text-[14px] text-slate-600 leading-relaxed font-normal">
+                 {result.engagementPrediction}
+               </p>
+            </section>
+          )}
         </div>
 
         <section className="md:col-span-4 border border-slate-100 rounded-xl p-8 bg-white shadow-sm flex flex-col justify-center">
