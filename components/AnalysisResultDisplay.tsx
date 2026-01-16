@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import type { AnalysisResult } from '../types';
 import { ScoreCircle } from './ScoreCircle';
+import { ACTIVE_MODEL } from '../services/geminiService';
 
 interface AnalysisResultDisplayProps {
   result: AnalysisResult;
@@ -44,7 +45,10 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <div className="space-y-6">
           <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm border-l-4 border-l-blue-600">
-             <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Primary Verdict</h3>
+             <div className="flex justify-between items-start mb-4">
+                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Primary Verdict</h3>
+                <span className="text-[10px] font-mono text-slate-300 uppercase">Engine: {ACTIVE_MODEL}</span>
+             </div>
              <h1 className="text-2xl font-medium text-slate-900 tracking-tight leading-relaxed">
                {result.verdict}
              </h1>
@@ -89,10 +93,14 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
       {/* ROW 4: Footer Bar */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
         <section className="md:col-span-9 border border-slate-100 rounded-xl px-8 py-5 flex items-center justify-between bg-white shadow-sm">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Color Spectrum</span>
-          <div className="flex gap-8 items-center">
+          <div className="flex flex-col gap-1">
+             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Neural Engine</span>
+             <span className="text-[9px] font-mono text-blue-600 font-bold tracking-tighter">{ACTIVE_MODEL}</span>
+          </div>
+          <div className="h-8 w-[1px] bg-slate-100 mx-4 hidden md:block"></div>
+          <div className="flex gap-8 items-center overflow-x-auto">
             {result.dominantColors.slice(0, 4).map((c, i) => (
-              <div key={i} className="flex items-center gap-3">
+              <div key={i} className="flex items-center gap-3 shrink-0">
                 <div className="w-4 h-4 rounded-full border border-slate-100 shadow-sm" style={{ backgroundColor: c.hex }} />
                 <span className="text-[10px] font-mono text-slate-500 font-bold uppercase">{c.hex}</span>
               </div>

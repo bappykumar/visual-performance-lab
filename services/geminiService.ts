@@ -1,6 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AnalysisResult, AnalysisMode } from '../types';
 
+export const ACTIVE_MODEL = 'gemini-3-flash-preview';
+
 const analysisSchema = {
   type: Type.OBJECT,
   properties: {
@@ -66,15 +68,20 @@ export const analyzeAsset = async (
     context: { category: string; title: string; description: string }
 ): Promise<AnalysisResult> => {
     
-    // Create AI instance inside the call to ensure process.env is ready
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
-    const model = 'gemini-3-flash-preview';
+    const API_KEY = process.env.API_KEY;
+    if (!API_KEY) {
+      throw new Error("Missing API_KEY. Please ensure it is set in environment variables.");
+    }
+
+    const ai = new GoogleGenAI({ apiKey: API_KEY });
+    
+    console.debug(`[Vision Lab] Initiating diagnostic with model: ${ACTIVE_MODEL}`);
 
     const systemPrompt = mode === 'YOUTUBE' 
       ? "You are a YouTube Thumbnail Expert. Focus on Click-Through Rate (CTR), facial expressions, and high-impact visual narrative."
       : "You are a Social Media Design Specialist. Focus on brand aesthetics, stop-the-scroll visual storytelling, and platform-specific impact.";
 
-    const diagnosticObjective = context.description || "No specific objective provided. Perform a general visual diagnostic focused on visual hierarchy, clarity, and universal performance heuristics.";
+    const diagnosticObjective = context.description || "Perform a general visual diagnostic focused on visual hierarchy and clarity.";
 
     const prompt = `
 ${systemPrompt}
@@ -88,16 +95,14 @@ Analyze the attached visual asset for its effectiveness.
 
 **Instructions:**
 1. Evaluate visual composition, contrast, and focus.
-2. If the user provided a specific objective, use it to fine-tune the verdict and refinement logic. 
-3. If no objective was provided, assume a general-audience intent and evaluate based on professional design principles.
-4. Output must be strictly valid JSON.
+2. Output must be strictly valid JSON.
 `;
 
     const imagePart = await fileToGenerativePart(imageFile);
 
     try {
         const response = await ai.models.generateContent({
-            model: model,
+            model: ACTIVE_MODEL,
             contents: [{ parts: [ { text: prompt }, imagePart ] }],
             config: {
                 responseMimeType: "application/json",
@@ -107,15 +112,12 @@ Analyze the attached visual asset for its effectiveness.
         });
         
         const responseText = response.text;
-        if (!responseText) throw new Error("Analysis failed.");
+        if (!responseText) throw new Error("Analysis failed - empty response.");
         const data = JSON.parse(responseText);
         return { ...data, mode };
 
     } catch (error: any) {
         console.error("AI Lab Error:", error);
-        if (error.message?.includes("API Key")) {
-            throw new Error("Missing API Key. Please ensure API_KEY is set in Vercel Environment Variables.");
-        }
-        throw new Error("Neural analysis interrupted. Please check your asset and try again.");
+        throw new Error(error.message || "Neural analysis interrupted. Please check your asset and try again.");
     }
 };
