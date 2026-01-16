@@ -1,4 +1,3 @@
-
 export type AnalysisMode = 'YOUTUBE' | 'SOCIAL';
 
 export interface YouTubeSuggestion {
@@ -46,5 +45,4 @@ export interface AnalysisResult {
   colorEvaluation: string;
   textAnalysis: TextAnalysis;
   platformOptimization?: string;
-  engagementPrediction?: string;
 }

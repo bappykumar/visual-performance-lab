@@ -1,4 +1,3 @@
-
 import React, { useId, useState, useEffect, useRef, useMemo } from 'react';
 import type { AnalysisResult } from '../types';
 import { ScoreCircle } from './ScoreCircle';
@@ -135,15 +134,6 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
                {result.imageDescription}
              </p>
           </section>
-
-          {result.engagementPrediction && (
-            <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm border-l-4 border-l-amber-500/50">
-               <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Performance Prediction</h3>
-               <p className="text-[14px] text-slate-600 leading-relaxed font-normal">
-                 {result.engagementPrediction}
-               </p>
-            </section>
-          )}
         </div>
 
         <section className="md:col-span-4 border border-slate-100 rounded-xl p-8 bg-white shadow-sm flex flex-col justify-center">

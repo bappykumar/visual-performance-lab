@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AnalysisResult, AnalysisMode } from '../types';
 
@@ -47,8 +46,7 @@ const analysisSchema = {
       },
       required: ["detectedText", "fontEvaluation", "sizeEvaluation", "placementEvaluation", "readabilityScore", "recommendedFonts"],
     },
-    platformOptimization: { type: Type.STRING, description: "Specific advice for the chosen platform." },
-    engagementPrediction: { type: Type.STRING, description: "Predicted performance insight." }
+    platformOptimization: { type: Type.STRING, description: "Specific advice for the chosen platform." }
   },
   required: ["score", "criteria", "pros", "cons", "verdict", "imageDescription", "dominantColors", "colorEvaluation", "textAnalysis"],
 };
