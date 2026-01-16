@@ -2,14 +2,13 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { VideoContextData } from "../types";
 import type { AnalysisResult, AnalysisMode } from '../types';
 
-// Switching to gemini-3-flash-preview to avoid 429 Quota Exceeded errors.
-// Flash is faster and has higher rate limits for free tier API keys.
+// Using gemini-3-flash-preview for balanced speed and deep multimodal reasoning
 export const ACTIVE_MODEL = 'gemini-3-flash-preview';
 
 const analysisSchema = {
   type: Type.OBJECT,
   properties: {
-    score: { type: Type.INTEGER },
+    score: { type: Type.INTEGER, description: "Overall effectiveness score from 0-100 based on design psychology." },
     criteria: {
       type: Type.OBJECT,
       properties: {
@@ -26,33 +25,33 @@ const analysisSchema = {
     },
     pros: { type: Type.ARRAY, items: { type: Type.STRING } },
     cons: { type: Type.ARRAY, items: { type: Type.STRING } },
-    verdict: { type: Type.STRING },
-    imageDescription: { type: Type.STRING },
+    verdict: { type: Type.STRING, description: "A punchy, expert design verdict." },
+    imageDescription: { type: Type.STRING, description: "Detailed visual breakdown." },
     dominantColors: {
       type: Type.ARRAY,
       items: {
         type: Type.OBJECT,
         properties: {
           hex: { type: Type.STRING },
-          psychology: { type: Type.STRING }
+          psychology: { type: Type.STRING, description: "Emotional impact of this color." }
         },
         required: ["hex", "psychology"]
       },
     },
-    colorEvaluation: { type: Type.STRING },
+    colorEvaluation: { type: Type.STRING, description: "Overall color strategy analysis." },
     textAnalysis: {
       type: Type.OBJECT,
       properties: {
         detectedText: { type: Type.ARRAY, items: { type: Type.STRING } },
-        fontEvaluation: { type: Type.STRING },
+        fontEvaluation: { type: Type.STRING, description: "Psychological impact of the chosen fonts." },
         sizeEvaluation: { type: Type.STRING },
         placementEvaluation: { type: Type.STRING },
-        readabilityScore: { type: Type.INTEGER },
+        readabilityScore: { type: Type.INTEGER, description: "0-100 score for text clarity." },
         recommendedFonts: { type: Type.ARRAY, items: { type: Type.STRING } }
       },
       required: ["detectedText", "fontEvaluation", "sizeEvaluation", "placementEvaluation", "readabilityScore", "recommendedFonts"],
     },
-    platformOptimization: { type: Type.STRING, description: "Specific advice for the chosen platform." }
+    platformOptimization: { type: Type.STRING }
   },
   required: ["score", "criteria", "pros", "cons", "verdict", "imageDescription", "dominantColors", "colorEvaluation", "textAnalysis"],
 };
@@ -74,31 +73,29 @@ export const analyzeAsset = async (
     context: VideoContextData
 ): Promise<AnalysisResult> => {
     
-    // Using the process.env.API_KEY string directly
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
-    console.debug(`[Vision Lab] Initiating diagnostic with model: ${ACTIVE_MODEL}`);
+    const baseSystemPrompt = mode === 'YOUTUBE' 
+      ? "You are a YouTube Thumbnail Psychology Expert. Focus on Click-Through Rate (CTR), human facial psychology, and the 'Rule of Thirds'. Analyze if text is too crowded or just right for mobile viewing."
+      : "You are a Digital Advertising Psychology Specialist. Focus on Call-to-Action (CTA) prominence, visual anchoring, and how typography influences trust and conversion in banners.";
 
-    const systemPrompt = mode === 'YOUTUBE' 
-      ? "You are a YouTube Thumbnail Expert. Focus on Click-Through Rate (CTR), facial expressions, and high-impact visual narrative."
-      : "You are a Digital Advertising and Banner Specialist. Focus on visual balance, call-to-action (CTA) effectiveness, and rapid information hierarchy in hero sections and ad banners.";
-
-    const assetContext = `The asset is a ${context.assetType}. Objective: ${context.description || "General aesthetic and performance audit."}`;
+    const diagnosticLogic = `
+Analyze the asset using 'Cognitive Load Theory'. 
+- **Typography Audit:** Detect all text. Evaluate if font styles match the brand emotion. Is text readable at small scales?
+- **Color Psychology:** Explain why the dominant colors were chosen and their subconscious effect on the viewer.
+- **Visual Hierarchy:** Determine where the eye lands first (Anchor point).
+- **Scoring:** Assign the 'score' based on how effectively these psychological elements work together.
+`;
 
     const prompt = `
-${systemPrompt}
+${baseSystemPrompt}
+${diagnosticLogic}
 
-**Asset Context:**
-${assetContext}
+**Context:**
+Type: ${context.assetType}
+Goal: ${context.description || "Optimization for engagement."}
 
-**Task:**
-Analyze the attached visual asset for its effectiveness based on 8 key criteria: Clarity, Contrast, Legibility, Hierarchy, Harmony, Narrative, Emotion, and Uniqueness. 
-Since this is an ${context.assetType}, adjust your diagnostic logic to prioritize relevant design standards (e.g., readability for Banners, engagement for YouTube).
-
-**Instructions:**
-1. Evaluate visual composition, contrast, and focus.
-2. Ensure each of the 8 criteria scores are weighted logically against the overall performance score.
-3. Output must be strictly valid JSON.
+**Return strictly valid JSON according to the provided schema.**
 `;
 
     const imagePart = await fileToGenerativePart(imageFile);
@@ -121,10 +118,9 @@ Since this is an ${context.assetType}, adjust your diagnostic logic to prioritiz
 
     } catch (error: any) {
         console.error("AI Lab Error:", error);
-        // Handle specific 429 error message for user
         if (error.message?.includes("429")) {
-          throw new Error("Quota exceeded for the AI engine. Please wait a minute and try again, or check your API billing status.");
+          throw new Error("Quota exceeded. Please wait a minute and try again.");
         }
-        throw new Error(error.message || "Neural analysis interrupted. Please check your asset and try again.");
+        throw new Error(error.message || "Diagnostic failed. Please try again.");
     }
 };

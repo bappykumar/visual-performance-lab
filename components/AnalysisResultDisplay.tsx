@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { AnalysisResult } from '../types';
 import { ScoreCircle } from './ScoreCircle';
-import { ACTIVE_MODEL } from '../services/geminiService';
 
 interface AnalysisResultDisplayProps {
   result: AnalysisResult;
@@ -44,7 +43,7 @@ const CriteriaBar: React.FC<{ label: string; targetValue: number; delay: number 
       </div>
       <div className="h-1.5 w-full bg-slate-100/80 rounded-full overflow-hidden relative">
         <div 
-          className="h-full bg-blue-600 transition-all duration-[1200ms] cubic-bezier(0.34, 1.56, 0.64, 1) rounded-full shadow-[0_0_8px_rgba(37,99,235,0.2)]"
+          className="h-full bg-blue-600 transition-all duration-[1200ms] cubic-bezier(0.34, 1.56, 0.64, 1) rounded-full"
           style={{ width: `${width}%` }}
         />
       </div>
@@ -59,142 +58,149 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
     containerRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  const calculateDerivedMetric = (base: number, offset: number) => Math.min(100, Math.max(0, base + offset));
-
   const criteriaList = [
-    { label: 'Clarity', value: calculateDerivedMetric(result.score, 4) },
-    { label: 'Contrast', value: calculateDerivedMetric(result.score, -6) },
-    { label: 'Legibility', value: calculateDerivedMetric(result.score, 2) },
-    { label: 'Hierarchy', value: calculateDerivedMetric(result.score, -2) },
-    { label: 'Harmony', value: calculateDerivedMetric(result.score, 5) },
-    { label: 'Narrative', value: calculateDerivedMetric(result.score, -8) },
-    { label: 'Emotion', value: calculateDerivedMetric(result.score, -12) },
-    { label: 'Uniqueness', value: calculateDerivedMetric(result.score, 8) },
+    { label: 'Clarity', value: result.criteria.clarity },
+    { label: 'Contrast', value: result.criteria.contrast },
+    { label: 'Legibility', value: result.criteria.legibility },
+    { label: 'Hierarchy', value: result.criteria.hierarchy },
+    { label: 'Harmony', value: result.criteria.harmony },
+    { label: 'Narrative', value: result.criteria.narrative },
+    { label: 'Emotion', value: result.criteria.emotion },
+    { label: 'Uniqueness', value: result.criteria.uniqueness },
   ];
 
   return (
     <div ref={containerRef} className="w-full max-w-6xl mx-auto space-y-6 animate-fade-in-up pb-20 px-4">
       
-      {/* TOP SECTION: Left (Thumbnail + Text) | Right (Matrix) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      {/* ROW 1: THUMBNAIL, VERDICT & SCORE (GRID 12 COLS) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* LEFT COLUMN (8/12) */}
+        {/* LEFT COLUMN: THUMBNAIL & VERDICT */}
         <div className="lg:col-span-8 flex flex-col gap-6">
-          {/* Thumbnail Card */}
+          {/* THUMBNAIL CARD */}
           <section className="relative rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-white aspect-video flex-shrink-0">
-            <img 
-              src={previewUrl} 
-              className="w-full h-full object-cover" 
-              alt="Audited Asset" 
-            />
+            <img src={previewUrl} className="w-full h-full object-cover" alt="Audit" />
             <div className="absolute inset-x-0 top-0 h-[1px] bg-blue-600/20 animate-scan pointer-events-none" />
           </section>
 
-          {/* Verdict Box */}
-          <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm border-l-4 border-l-blue-600">
+          {/* VERDICT CARD */}
+          <section className="flex-grow border border-slate-100 rounded-xl p-8 bg-white shadow-sm border-l-4 border-l-blue-600 flex flex-col justify-center">
              <h3 className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">Diagnostic Verdict</h3>
-             <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-snug">
-               {result.verdict}
-             </h2>
-          </section>
-
-          {/* Description Box */}
-          <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm">
-             <h3 className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">Contextual Analysis</h3>
-             <p className="text-[14px] text-slate-500 leading-relaxed">
-               {result.imageDescription}
-             </p>
+             <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-snug">{result.verdict}</h2>
           </section>
         </div>
 
-        {/* RIGHT COLUMN (4/12): Performance Matrix Card */}
-        <div className="lg:col-span-4">
-          <section className="h-full border border-slate-100 rounded-xl p-8 bg-white shadow-sm flex flex-col items-center">
-            <div className="text-center mb-6">
-              <h3 className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.25em]">Performance Matrix</h3>
-              <p className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter mt-1">Full-Spectrum Diagnostic</p>
+        {/* RIGHT COLUMN: SCORE CARD (FULL HEIGHT OF LEFT COLUMN) */}
+        <div className="lg:col-span-4 h-full">
+          <section className="h-full border border-slate-100 rounded-xl p-8 bg-white shadow-sm flex flex-col items-center justify-between">
+            <div className="text-center w-full">
+              <h3 className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.25em]">Psychological Score</h3>
+              <p className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter mt-1">Cognitive Impact Diagnostic</p>
             </div>
             
-            <div className="mb-8">
+            <div className="py-8">
               <ScoreCircle score={result.score} />
             </div>
 
-            <div className="w-full space-y-4 flex-grow">
+            <div className="w-full space-y-4">
               {criteriaList.map((item, idx) => (
-                <CriteriaBar 
-                  key={item.label} 
-                  label={item.label} 
-                  targetValue={item.value} 
-                  delay={600 + (idx * 80)} 
-                />
+                <CriteriaBar key={item.label} label={item.label} targetValue={item.value} delay={600 + (idx * 80)} />
               ))}
-            </div>
-
-            <div className="w-full pt-6 mt-6 border-t border-slate-50 text-center">
-              <span className="text-[9px] font-mono text-slate-300 uppercase tracking-widest">Neural V2.1 Protocol</span>
             </div>
           </section>
         </div>
       </div>
 
-      {/* MIDDLE SECTION: Observations & Logic */}
+      {/* ROW 2: TYPOGRAPHY (FULL WIDTH) */}
+      <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-50 pb-6 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900">Typography & Text Load Diagnostic</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] font-bold text-slate-400 uppercase">Readability Index:</span>
+            <span className="text-sm font-mono font-bold text-blue-600">{result.textAnalysis.readabilityScore}%</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="space-y-4">
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Detected Symbols & Text</p>
+            <div className="flex flex-wrap gap-2">
+              {result.textAnalysis.detectedText.length > 0 ? (
+                result.textAnalysis.detectedText.map((t, i) => (
+                  <span key={i} className="px-2 py-1 bg-slate-50 border border-slate-100 rounded text-[11px] font-medium text-slate-600">"{t}"</span>
+                ))
+              ) : (
+                <span className="text-[11px] italic text-slate-400">No textual symbols detected.</span>
+              )}
+            </div>
+          </div>
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Font Psychology</p>
+              <p className="text-[13px] text-slate-600 leading-relaxed">{result.textAnalysis.fontEvaluation}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Placement & Scale</p>
+              <p className="text-[13px] text-slate-600 leading-relaxed">{result.textAnalysis.placementEvaluation} {result.textAnalysis.sizeEvaluation}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ROW 3: COLOR PALETTE (FULL WIDTH) */}
+      <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm">
+        <div className="flex items-center gap-3 border-b border-slate-50 pb-6 mb-6">
+          <div className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900">Color Palette & Emotional Anchors</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {result.dominantColors.map((c, i) => (
+            <div key={i} className="space-y-3 p-4 rounded-xl bg-slate-50/50 border border-slate-100/50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg shadow-sm" style={{ backgroundColor: c.hex }} />
+                <span className="text-[11px] font-mono font-bold text-slate-900">{c.hex}</span>
+              </div>
+              <p className="text-[12px] text-slate-500 leading-tight">{c.psychology}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ROW 4: OBSERVATIONS & REFINEMENTS (2 COLUMNS) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-            <div className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900">Critical Observations</h3>
-          </div>
-          <ul className="space-y-4">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900 flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-teal-500" /> Observations
+          </h3>
+          <ul className="space-y-3">
             {result.pros.map((p, i) => (
-              <li key={i} className="flex gap-4 items-start text-[13px] text-slate-600 leading-relaxed">
-                <span className="mt-2 w-1 h-1 rounded-full bg-slate-200 shrink-0" />
-                <span>{p}</span>
-              </li>
+              <li key={i} className="flex gap-4 items-start text-[13px] text-slate-600"><span className="mt-1.5 w-1 h-1 rounded-full bg-slate-200 shrink-0" />{p}</li>
             ))}
           </ul>
         </section>
-
         <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-40" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900">Refinement Logic</h3>
-          </div>
-          <ul className="space-y-4">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900 flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-blue-500" /> Refinements
+          </h3>
+          <ul className="space-y-3">
             {result.cons.map((c, i) => (
-              <li key={i} className="flex gap-4 items-start text-[13px] text-slate-600 leading-relaxed">
-                <span className="mt-2 w-1 h-1 rounded-full bg-slate-200 shrink-0" />
-                <span>{c}</span>
-              </li>
+              <li key={i} className="flex gap-4 items-start text-[13px] text-slate-600"><span className="mt-1.5 w-1 h-1 rounded-full bg-slate-200 shrink-0" />{c}</li>
             ))}
           </ul>
         </section>
       </div>
 
-      {/* BOTTOM SECTION: Footer */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <section className="md:col-span-9 border border-slate-100 rounded-xl px-8 py-5 flex items-center justify-between bg-white shadow-sm">
-          <div className="flex flex-col gap-1">
-             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Color Diagnostic</span>
-             <span className="text-[8px] font-mono text-blue-600 font-bold tracking-tighter uppercase">{ACTIVE_MODEL}</span>
-          </div>
-          <div className="flex gap-8 items-center overflow-x-auto scrollbar-hide">
-            {result.dominantColors.slice(0, 4).map((c, i) => (
-              <div key={i} className="flex items-center gap-3 shrink-0">
-                <div className="w-4 h-4 rounded-full border border-slate-100 shadow-sm" style={{ backgroundColor: c.hex }} />
-                <span className="text-[10px] font-mono text-slate-500 font-bold uppercase">{c.hex}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="md:col-span-3">
-          <button 
-            onClick={onReset}
-            className="w-full h-full py-5 rounded-xl bg-slate-900 text-white text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-slate-800 transition-all active:scale-[0.98] shadow-sm"
-          >
-            New Audit
-          </button>
-        </section>
+      {/* FOOTER: START NEW AUDIT (FULL WIDTH) */}
+      <div className="pt-4">
+        <button 
+          onClick={onReset} 
+          className="w-full py-6 rounded-xl bg-slate-900 text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-slate-800 transition-all active:scale-[0.99] shadow-xl hover:shadow-slate-200"
+        >
+          Start New Audit Protocol
+        </button>
       </div>
     </div>
   );

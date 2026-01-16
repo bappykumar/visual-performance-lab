@@ -149,14 +149,14 @@ function App() {
                     <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-tighter">Engine: {ACTIVE_MODEL}</span>
                  </div>
                </div>
-               <h1 className="text-4xl font-semibold text-slate-900 tracking-tight">Thumbnail Audit Protocol</h1>
+               <h1 className="text-4xl font-semibold text-slate-900 tracking-tight">Design Audit Protocol</h1>
                <p className="text-slate-500 max-w-md mx-auto text-sm">Upload your asset to begin a deep-dive diagnostic of visual hierarchy and performance potential.</p>
             </header>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
               {[
                 { id: 'YOUTUBE' as const, title: 'YouTube Core', desc: 'CTR & Narrative Hierarchy Analysis' },
-                { id: 'BANNER' as const, title: 'Banner Protocol', desc: 'Header & Ad Banner Impact Diagnostic' }
+                { id: 'BANNER' as const, title: 'Design Protocol', desc: 'Universal Visual & Aesthetic Performance Audit' }
               ].map((m) => (
                 <button 
                   key={m.id}
