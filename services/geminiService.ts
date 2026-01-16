@@ -1,8 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AnalysisResult, AnalysisMode } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-
 const analysisSchema = {
   type: Type.OBJECT,
   properties: {
@@ -68,6 +66,8 @@ export const analyzeAsset = async (
     context: { category: string; title: string; description: string }
 ): Promise<AnalysisResult> => {
     
+    // Create AI instance inside the call to ensure process.env is ready
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
     const model = 'gemini-3-flash-preview';
 
     const systemPrompt = mode === 'YOUTUBE' 
@@ -96,7 +96,7 @@ Analyze the attached visual asset for its effectiveness.
     const imagePart = await fileToGenerativePart(imageFile);
 
     try {
-        const result = await ai.models.generateContent({
+        const response = await ai.models.generateContent({
             model: model,
             contents: [{ parts: [ { text: prompt }, imagePart ] }],
             config: {
@@ -106,13 +106,16 @@ Analyze the attached visual asset for its effectiveness.
             }
         });
         
-        const responseText = result.text;
+        const responseText = response.text;
         if (!responseText) throw new Error("Analysis failed.");
         const data = JSON.parse(responseText);
         return { ...data, mode };
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI Lab Error:", error);
+        if (error.message?.includes("API Key")) {
+            throw new Error("Missing API Key. Please ensure API_KEY is set in Vercel Environment Variables.");
+        }
         throw new Error("Neural analysis interrupted. Please check your asset and try again.");
     }
 };
