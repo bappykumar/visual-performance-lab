@@ -82,7 +82,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans antialiased flex flex-col items-center">
+    <div className="min-h-screen bg-white text-slate-900 font-sans antialiased flex flex-col items-center relative">
       <div 
         className="progress-line" 
         style={{ 
@@ -90,6 +90,45 @@ function App() {
           opacity: step === 'IDLE' || step === 'READY' ? 0 : 1
         }} 
       />
+
+      {/* External Links Container */}
+      <div className="fixed top-6 right-6 z-[110] flex items-center gap-3">
+        {/* Prompt Master Link */}
+        <a 
+          href="https://stock-prompt-architect.vercel.app/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="p-2 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 hover:scale-110 transition-all duration-200 group shadow-sm"
+          title="PROMPT MASTER"
+          aria-label="Visit Prompt Master"
+        >
+          <svg 
+            viewBox="0 0 24 24" 
+            className="w-5 h-5 fill-slate-400 group-hover:fill-indigo-500 transition-colors"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M12 2L14.5 9L22 12L14.5 15L12 22L9.5 15L2 12L9.5 9L12 2ZM12 6.5L10.8 10.2L7.1 11.4L10.8 12.6L12 16.3L13.2 12.6L16.9 11.4L13.2 10.2L12 6.5ZM19 3L20.2 6.7L24 7.9L20.2 9.1L19 12.8L17.8 9.1L14 7.9L17.8 6.7L19 3ZM5.5 14L6.4 16.5L9 17.4L6.4 18.3L5.5 20.9L4.6 18.3L2 17.4L4.6 16.5L5.5 14Z"/>
+          </svg>
+        </a>
+
+        {/* Telegram Minimal Link */}
+        <a 
+          href="https://t.me/designbd2" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="p-2 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 hover:scale-110 transition-all duration-200 group shadow-sm"
+          title="Join Telegram"
+          aria-label="Join our Telegram"
+        >
+          <svg 
+            viewBox="0 0 24 24" 
+            className="w-5 h-5 fill-slate-400 group-hover:fill-blue-500 transition-colors"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.13-.31-1.08-.66.02-.18.27-.36.74-.55 2.91-1.26 4.85-2.1 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .33z"/>
+          </svg>
+        </a>
+      </div>
 
       <div className="w-full max-w-5xl px-6 py-12 md:py-24 space-y-12">
         <input 
