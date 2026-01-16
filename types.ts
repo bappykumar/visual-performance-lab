@@ -1,4 +1,11 @@
-export type AnalysisMode = 'YOUTUBE' | 'SOCIAL';
+export type AnalysisMode = 'YOUTUBE' | 'BANNER';
+
+export interface VideoContextData {
+  assetType: string;
+  category: string;
+  title: string;
+  description: string;
+}
 
 export interface YouTubeSuggestion {
   videoTitle: string;

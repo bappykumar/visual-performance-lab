@@ -1,24 +1,26 @@
-
 import React, { useState, useId } from 'react';
-
-export interface VideoContextData {
-  category: string;
-  title: string;
-  description: string;
-}
+import type { VideoContextData, AnalysisMode } from '../types';
 
 interface VideoContextFormProps {
+  mode: AnalysisMode;
   onSubmit: (data: VideoContextData) => void;
   disabled: boolean;
 }
 
-export const VideoContextForm: React.FC<VideoContextFormProps> = ({ onSubmit, disabled }) => {
+const ASSET_TYPES = [
+  { id: 'ADVERTISEMENT', label: 'Ads' },
+  { id: 'BANNER_DESIGN', label: 'Banner' },
+  { id: 'BRANDING', label: 'Branding' },
+  { id: 'UI_UX', label: 'UI/UX' },
+  { id: 'OTHER', label: 'Other' },
+];
+
+export const VideoContextForm: React.FC<VideoContextFormProps> = ({ mode, onSubmit, disabled }) => {
   const [description, setDescription] = useState('');
+  const [selectedType, setSelectedType] = useState(mode === 'YOUTUBE' ? 'YOUTUBE_THUMBNAIL' : 'ADVERTISEMENT');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputId = useId();
 
-  // Button logic: Enabled as long as no analysis is in progress and the parent hasn't disabled it.
-  // The text input is now OPTIONAL.
   const isButtonEnabled = !disabled && !isSubmitting;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -27,14 +29,41 @@ export const VideoContextForm: React.FC<VideoContextFormProps> = ({ onSubmit, di
 
     setIsSubmitting(true);
     onSubmit({
+      assetType: mode === 'YOUTUBE' ? 'YOUTUBE_THUMBNAIL' : selectedType,
       category: 'General Audience',
-      title: 'Primary Visual Asset',
+      title: mode === 'YOUTUBE' ? 'YouTube Thumbnail' : 'Primary Visual Asset',
       description: description.trim()
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
+      {/* Asset Type Selection - Only visible for BANNER mode */}
+      {mode === 'BANNER' && (
+        <div className="space-y-3">
+          <label className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-900 ml-1">
+            Asset Category
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {ASSET_TYPES.map((type) => (
+              <button
+                key={type.id}
+                type="button"
+                onClick={() => setSelectedType(type.id)}
+                disabled={disabled || isSubmitting}
+                className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                  selectedType === type.id
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100'
+                    : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
+                }`}
+              >
+                {type.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="space-y-3">
         <label 
           htmlFor={inputId}
@@ -46,7 +75,7 @@ export const VideoContextForm: React.FC<VideoContextFormProps> = ({ onSubmit, di
           id={inputId}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          rows={6}
+          rows={5}
           className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl px-5 py-4 focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all text-[15px] font-normal leading-relaxed outline-none resize-none shadow-sm placeholder:text-slate-300"
           placeholder="Optional: add context to fine-tune analysis…"
           disabled={disabled || isSubmitting}

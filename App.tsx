@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { VideoContextForm, VideoContextData } from './components/VideoContextForm';
+import { VideoContextForm } from './components/VideoContextForm';
 import { AnalysisResultDisplay } from './components/AnalysisResultDisplay';
 import { analyzeAsset, ACTIVE_MODEL } from './services/geminiService';
 import { ValidationFeedback } from './components/ValidationFeedback';
-import type { AnalysisResult, AnalysisMode, ValidationStatus } from './types';
+import type { AnalysisResult, AnalysisMode, ValidationStatus, VideoContextData } from './types';
 
 type AnalysisStep = 'IDLE' | 'LOADED' | 'RUNNING' | 'SCORING' | 'READY';
 
@@ -156,7 +156,7 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
               {[
                 { id: 'YOUTUBE' as const, title: 'YouTube Core', desc: 'CTR & Narrative Hierarchy Analysis' },
-                { id: 'SOCIAL' as const, title: 'Brand Equity', desc: 'Aesthetic Impact & Branding Audit' }
+                { id: 'BANNER' as const, title: 'Banner Protocol', desc: 'Header & Ad Banner Impact Diagnostic' }
               ].map((m) => (
                 <button 
                   key={m.id}
@@ -208,7 +208,7 @@ function App() {
                     </div>
                     <p className="text-sm text-slate-500 mt-2">Define diagnostic context for accurate evaluation</p>
                   </header>
-                  <VideoContextForm onSubmit={handleAnalysis} disabled={step !== 'LOADED'} />
+                  <VideoContextForm mode={mode!} onSubmit={handleAnalysis} disabled={step !== 'LOADED'} />
                 </div>
               </div>
             ) : (

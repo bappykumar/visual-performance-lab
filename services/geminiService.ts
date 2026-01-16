@@ -1,7 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { VideoContextData } from "../types";
 import type { AnalysisResult, AnalysisMode } from '../types';
 
-export const ACTIVE_MODEL = 'gemini-3-flash-preview';
+// Using gemini-3-pro-preview as design diagnostic is a complex reasoning task
+export const ACTIVE_MODEL = 'gemini-3-pro-preview';
 
 const analysisSchema = {
   type: Type.OBJECT,
@@ -68,33 +70,29 @@ async function fileToGenerativePart(file: File) {
 export const analyzeAsset = async (
     imageFile: File,
     mode: AnalysisMode,
-    context: { category: string; title: string; description: string }
+    context: VideoContextData
 ): Promise<AnalysisResult> => {
     
-    const API_KEY = process.env.API_KEY;
-    if (!API_KEY) {
-      throw new Error("Missing API_KEY. Please ensure it is set in environment variables.");
-    }
-
-    const ai = new GoogleGenAI({ apiKey: API_KEY });
+    // Always use the process.env.API_KEY string directly in the constructor
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     console.debug(`[Vision Lab] Initiating diagnostic with model: ${ACTIVE_MODEL}`);
 
     const systemPrompt = mode === 'YOUTUBE' 
       ? "You are a YouTube Thumbnail Expert. Focus on Click-Through Rate (CTR), facial expressions, and high-impact visual narrative."
-      : "You are a Social Media Design Specialist. Focus on brand aesthetics, stop-the-scroll visual storytelling, and platform-specific impact.";
+      : "You are a Digital Advertising and Banner Specialist. Focus on visual balance, call-to-action (CTA) effectiveness, and rapid information hierarchy in hero sections and ad banners.";
 
-    const diagnosticObjective = context.description || "Perform a general visual diagnostic focused on visual hierarchy and clarity.";
+    const assetContext = `The asset is a ${context.assetType}. Objective: ${context.description || "General aesthetic and performance audit."}`;
 
     const prompt = `
 ${systemPrompt}
 
-**Task:**
-Analyze the attached visual asset for its effectiveness based on 8 key criteria: Clarity, Contrast, Legibility, Hierarchy, Harmony, Narrative, Emotion, and Uniqueness.
+**Asset Context:**
+${assetContext}
 
-**Diagnostic Parameters:**
-- Mode: ${mode}
-- User Context/Objective: ${diagnosticObjective}
+**Task:**
+Analyze the attached visual asset for its effectiveness based on 8 key criteria: Clarity, Contrast, Legibility, Hierarchy, Harmony, Narrative, Emotion, and Uniqueness. 
+Since this is an ${context.assetType}, adjust your diagnostic logic to prioritize relevant design standards (e.g., readability for Banners, engagement for YouTube).
 
 **Instructions:**
 1. Evaluate visual composition, contrast, and focus.
@@ -115,6 +113,7 @@ Analyze the attached visual asset for its effectiveness based on 8 key criteria:
             }
         });
         
+        // Correctly accessing the text property from GenerateContentResponse
         const responseText = response.text;
         if (!responseText) throw new Error("Analysis failed - empty response.");
         const data = JSON.parse(responseText);
