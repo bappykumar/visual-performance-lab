@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { AnalysisResult } from '../types';
 import { ScoreCircle } from './ScoreCircle';
 import { ACTIVE_MODEL } from '../services/geminiService';
@@ -9,6 +9,53 @@ interface AnalysisResultDisplayProps {
   onReset: () => void;
 }
 
+const CriteriaBar: React.FC<{ label: string; value: number; delay: number }> = ({ label, value, delay }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const widthTimeout = setTimeout(() => {
+      setWidth(value);
+      
+      // Upward Counter logic
+      let start = 0;
+      const duration = 1000; // 1 second
+      const frameRate = 16; // ~60fps
+      const totalFrames = duration / frameRate;
+      const increment = value / totalFrames;
+      
+      const timer = setInterval(() => {
+        start += increment;
+        if (start >= value) {
+          setDisplayValue(value);
+          clearInterval(timer);
+        } else {
+          setDisplayValue(Math.floor(start));
+        }
+      }, frameRate);
+      
+      return () => clearInterval(timer);
+    }, delay);
+
+    return () => clearTimeout(widthTimeout);
+  }, [value, delay]);
+
+  return (
+    <div className="space-y-2 w-full">
+      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+        <span>{label}</span>
+        <span className="font-mono text-slate-900">{displayValue}%</span>
+      </div>
+      <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100/50">
+        <div 
+          className="h-full bg-blue-600 transition-all duration-1000 ease-out rounded-full shadow-[0_0_8px_rgba(37,99,235,0.2)]"
+          style={{ width: `${width}%` }}
+        />
+      </div>
+    </div>
+  );
+};
+
 export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ result, previewUrl, onReset }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -16,10 +63,18 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
     containerRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
+  const criteriaList = [
+    { label: 'Clarity', value: result.criteria.clarity },
+    { label: 'Contrast', value: result.criteria.contrast },
+    { label: 'Legibility', value: result.criteria.legibility },
+    { label: 'Emotion', value: result.criteria.emotion },
+    { label: 'Uniqueness', value: result.criteria.uniqueness },
+  ];
+
   return (
     <div ref={containerRef} className="w-full max-w-5xl mx-auto space-y-6 animate-fade-in-up pb-24">
       
-      {/* ROW 1: Thumbnail & Overall Score */}
+      {/* ROW 1: Thumbnail & Scores */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* THUMBNAIL */}
         <section className="md:col-span-8 relative group rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-white">
@@ -31,13 +86,25 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
           <div className="absolute inset-x-0 top-0 h-[1px] bg-blue-600/10 animate-scan pointer-events-none" aria-hidden="true" />
         </section>
 
-        {/* OVERALL SCORE */}
-        <section className="md:col-span-4 flex flex-col items-center justify-center border border-slate-100 rounded-xl p-8 bg-white shadow-sm space-y-6">
+        {/* OVERALL SCORE & DETAILED CRITERIA */}
+        <section className="md:col-span-4 flex flex-col items-center border border-slate-100 rounded-xl p-8 bg-white shadow-sm space-y-8">
           <div className="text-center space-y-1">
-            <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Overall Performance Score</h2>
-            <p className="text-[10px] text-slate-400 max-w-[140px] leading-tight mx-auto">Calculated from clarity, contrast, and visual hierarchy.</p>
+            <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Performance Audit</h2>
+            <p className="text-[10px] text-slate-400 max-w-[140px] mx-auto">Neural diagnostic score</p>
           </div>
+          
           <ScoreCircle score={result.score} />
+
+          <div className="w-full space-y-5 pt-4 border-t border-slate-50">
+            {criteriaList.map((item, idx) => (
+              <CriteriaBar 
+                key={item.label} 
+                label={item.label} 
+                value={item.value} 
+                delay={400 + (idx * 150)} 
+              />
+            ))}
+          </div>
         </section>
       </div>
 
