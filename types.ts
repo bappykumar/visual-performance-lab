@@ -10,6 +10,9 @@ export interface CriteriaScores {
   clarity: number;
   contrast: number;
   legibility: number;
+  hierarchy: number;
+  harmony: number;
+  narrative: number;
   emotion: number;
   uniqueness: number;
 }

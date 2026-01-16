@@ -20,21 +20,30 @@ export const ScoreCircle: React.FC<ScoreCircleProps> = ({ score }) => {
   const circ = 2 * Math.PI * radius;
   const offset = circ - (val / 100) * circ;
 
-  const getColor = () => {
-    if (val >= 80) return 'text-teal-500';
-    if (val >= 60) return 'text-amber-500';
-    return 'text-rose-600';
+  const getColorClasses = () => {
+    if (val >= 80) return {
+      text: 'text-teal-500',
+      glow: 'hover:drop-shadow-[0_0_15px_rgba(20,184,166,0.25)]'
+    };
+    if (val >= 60) return {
+      text: 'text-amber-500',
+      glow: 'hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.25)]'
+    };
+    return {
+      text: 'text-rose-600',
+      glow: 'hover:drop-shadow-[0_0_15px_rgba(225,29,72,0.25)]'
+    };
   };
 
-  const activeColor = getColor();
+  const { text: activeColor, glow: hoverGlow } = getColorClasses();
 
   return (
     <div 
-      className="relative flex items-center justify-center w-36 h-36 select-none"
+      className={`relative flex items-center justify-center w-36 h-36 select-none transition-all duration-500 ease-out cursor-default hover:scale-[1.06] ${hoverGlow}`}
       role="img" 
       aria-label={`Performance score: ${Math.round(val)}%`}
     >
-      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140" aria-hidden="true">
+      <svg className="w-full h-full transform -rotate-90 transition-transform duration-500" viewBox="0 0 140 140" aria-hidden="true">
         <circle
           className="text-slate-100"
           strokeWidth="2"
@@ -58,7 +67,7 @@ export const ScoreCircle: React.FC<ScoreCircleProps> = ({ score }) => {
         />
       </svg>
       
-      <div className={`absolute flex items-baseline transition-opacity duration-500 ${showNumber ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`absolute flex items-baseline transition-all duration-500 ${showNumber ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
         <span className="text-5xl font-bold text-slate-900 tracking-tight tabular-nums leading-none">
           {Math.round(val)}
         </span>

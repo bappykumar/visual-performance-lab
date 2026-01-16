@@ -13,10 +13,13 @@ const analysisSchema = {
         clarity: { type: Type.INTEGER },
         contrast: { type: Type.INTEGER },
         legibility: { type: Type.INTEGER },
+        hierarchy: { type: Type.INTEGER },
+        harmony: { type: Type.INTEGER },
+        narrative: { type: Type.INTEGER },
         emotion: { type: Type.INTEGER },
         uniqueness: { type: Type.INTEGER },
       },
-      required: ["clarity", "contrast", "legibility", "emotion", "uniqueness"],
+      required: ["clarity", "contrast", "legibility", "hierarchy", "harmony", "narrative", "emotion", "uniqueness"],
     },
     pros: { type: Type.ARRAY, items: { type: Type.STRING } },
     cons: { type: Type.ARRAY, items: { type: Type.STRING } },
@@ -87,7 +90,7 @@ export const analyzeAsset = async (
 ${systemPrompt}
 
 **Task:**
-Analyze the attached visual asset for its effectiveness. 
+Analyze the attached visual asset for its effectiveness based on 8 key criteria: Clarity, Contrast, Legibility, Hierarchy, Harmony, Narrative, Emotion, and Uniqueness.
 
 **Diagnostic Parameters:**
 - Mode: ${mode}
@@ -95,7 +98,8 @@ Analyze the attached visual asset for its effectiveness.
 
 **Instructions:**
 1. Evaluate visual composition, contrast, and focus.
-2. Output must be strictly valid JSON.
+2. Ensure each of the 8 criteria scores are weighted logically against the overall performance score.
+3. Output must be strictly valid JSON.
 `;
 
     const imagePart = await fileToGenerativePart(imageFile);
