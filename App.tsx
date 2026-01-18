@@ -93,24 +93,6 @@ function App() {
 
       {/* External Links Container */}
       <div className="fixed top-6 right-6 z-[110] flex items-center gap-3">
-        {/* Prompt Master Link */}
-        <a 
-          href="https://stock-prompt-architect.vercel.app/" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="p-2 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 hover:scale-110 transition-all duration-200 group shadow-sm"
-          title="PROMPT MASTER"
-          aria-label="Visit Prompt Master"
-        >
-          <svg 
-            viewBox="0 0 24 24" 
-            className="w-5 h-5 fill-slate-400 group-hover:fill-indigo-500 transition-colors"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M12 2L14.5 9L22 12L14.5 15L12 22L9.5 15L2 12L9.5 9L12 2ZM12 6.5L10.8 10.2L7.1 11.4L10.8 12.6L12 16.3L13.2 12.6L16.9 11.4L13.2 10.2L12 6.5ZM19 3L20.2 6.7L24 7.9L20.2 9.1L19 12.8L17.8 9.1L14 7.9L17.8 6.7L19 3ZM5.5 14L6.4 16.5L9 17.4L6.4 18.3L5.5 20.9L4.6 18.3L2 17.4L4.6 16.5L5.5 14Z"/>
-          </svg>
-        </a>
-
         {/* Telegram Minimal Link */}
         <a 
           href="https://t.me/designbd2" 
