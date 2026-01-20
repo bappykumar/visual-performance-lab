@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 interface ScoreCircleProps { score: number; }
@@ -23,15 +22,15 @@ export const ScoreCircle: React.FC<ScoreCircleProps> = ({ score }) => {
   const getColorClasses = () => {
     if (val >= 80) return {
       text: 'text-teal-500',
-      glow: 'hover:drop-shadow-[0_0_15px_rgba(20,184,166,0.25)]'
+      glow: 'hover:drop-shadow-[0_0_15px_rgba(20,184,166,0.6)]'
     };
     if (val >= 60) return {
       text: 'text-amber-500',
-      glow: 'hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.25)]'
+      glow: 'hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]'
     };
     return {
-      text: 'text-rose-600',
-      glow: 'hover:drop-shadow-[0_0_15px_rgba(225,29,72,0.25)]'
+      text: 'text-rose-500',
+      glow: 'hover:drop-shadow-[0_0_15px_rgba(244,63,94,0.6)]'
     };
   };
 
@@ -45,7 +44,7 @@ export const ScoreCircle: React.FC<ScoreCircleProps> = ({ score }) => {
     >
       <svg className="w-full h-full transform -rotate-90 transition-transform duration-500" viewBox="0 0 140 140" aria-hidden="true">
         <circle
-          className="text-slate-100"
+          className="text-slate-800"
           strokeWidth="2"
           stroke="currentColor"
           fill="transparent"
@@ -68,10 +67,10 @@ export const ScoreCircle: React.FC<ScoreCircleProps> = ({ score }) => {
       </svg>
       
       <div className={`absolute flex items-baseline transition-all duration-500 ${showNumber ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
-        <span className="text-5xl font-bold text-slate-900 tracking-tight tabular-nums leading-none">
+        <span className="text-5xl font-bold text-slate-100 tracking-tight tabular-nums leading-none">
           {Math.round(val)}
         </span>
-        <span className="text-xs font-mono text-slate-400 ml-1 font-bold">%</span>
+        <span className="text-xs font-mono text-slate-500 ml-1 font-bold">%</span>
       </div>
     </div>
   );

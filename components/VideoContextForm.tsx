@@ -10,6 +10,9 @@ interface VideoContextFormProps {
 const ASSET_TYPES = [
   { id: 'ADVERTISEMENT', label: 'Ads' },
   { id: 'BANNER_DESIGN', label: 'Banner' },
+  { id: 'SOCIAL_POST', label: 'Social Post' },
+  { id: 'WEBSITE_HERO', label: 'Web Hero' },
+  { id: 'PRODUCT_SHOT', label: 'Product' },
   { id: 'BRANDING', label: 'Branding' },
   { id: 'UI_UX', label: 'UI/UX' },
   { id: 'OTHER', label: 'Other' },
@@ -41,7 +44,7 @@ export const VideoContextForm: React.FC<VideoContextFormProps> = ({ mode, onSubm
       {/* Asset Type Selection - Only visible for BANNER mode */}
       {mode === 'BANNER' && (
         <div className="space-y-3">
-          <label className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-900 ml-1">
+          <label className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 ml-1">
             Asset Category
           </label>
           <div className="flex flex-wrap gap-2">
@@ -53,8 +56,8 @@ export const VideoContextForm: React.FC<VideoContextFormProps> = ({ mode, onSubm
                 disabled={disabled || isSubmitting}
                 className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
                   selectedType === type.id
-                    ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100'
-                    : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
+                    ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]'
+                    : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700 hover:text-slate-300 hover:bg-slate-800'
                 }`}
               >
                 {type.label}
@@ -67,7 +70,7 @@ export const VideoContextForm: React.FC<VideoContextFormProps> = ({ mode, onSubm
       <div className="space-y-3">
         <label 
           htmlFor={inputId}
-          className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-900 ml-1 cursor-pointer select-none"
+          className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 ml-1 cursor-pointer select-none"
         >
           Diagnostic Objective
         </label>
@@ -76,8 +79,8 @@ export const VideoContextForm: React.FC<VideoContextFormProps> = ({ mode, onSubm
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={5}
-          className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl px-5 py-4 focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all text-[15px] font-normal leading-relaxed outline-none resize-none shadow-sm placeholder:text-slate-300"
-          placeholder="Optional: add context to fine-tune analysis…"
+          className="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl px-5 py-4 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all text-[15px] font-normal leading-relaxed outline-none resize-none shadow-inner placeholder:text-slate-600"
+          placeholder="Optional: add context to fine-tune analysis (e.g., 'Targeting Gen-Z for a tech product launch')..."
           disabled={disabled || isSubmitting}
         />
       </div>
@@ -88,8 +91,8 @@ export const VideoContextForm: React.FC<VideoContextFormProps> = ({ mode, onSubm
         className={`
           w-full py-5 rounded-xl text-[12px] font-bold uppercase tracking-widest transition-all duration-200
           ${isButtonEnabled 
-            ? 'bg-blue-600 text-white cursor-pointer shadow-lg shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]' 
-            : 'bg-slate-100 text-slate-400 opacity-60 cursor-not-allowed shadow-none'
+            ? 'bg-blue-600 text-white cursor-pointer shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:bg-blue-500 hover:shadow-[0_0_25px_rgba(37,99,235,0.5)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]' 
+            : 'bg-slate-800 text-slate-600 border border-slate-700/50 opacity-60 cursor-not-allowed shadow-none'
           }
         `}
       >

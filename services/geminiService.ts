@@ -1,60 +1,25 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { VideoContextData } from "../types";
 import type { AnalysisResult, AnalysisMode } from '../types';
 
 // Using gemini-3-flash-preview for balanced speed and deep multimodal reasoning
 export const ACTIVE_MODEL = 'gemini-3-flash-preview';
 
-const analysisSchema = {
-  type: Type.OBJECT,
-  properties: {
-    score: { type: Type.INTEGER, description: "Overall effectiveness score from 0-100 based on design psychology." },
-    criteria: {
-      type: Type.OBJECT,
-      properties: {
-        clarity: { type: Type.INTEGER },
-        contrast: { type: Type.INTEGER },
-        legibility: { type: Type.INTEGER },
-        hierarchy: { type: Type.INTEGER },
-        harmony: { type: Type.INTEGER },
-        narrative: { type: Type.INTEGER },
-        emotion: { type: Type.INTEGER },
-        uniqueness: { type: Type.INTEGER },
-      },
-      required: ["clarity", "contrast", "legibility", "hierarchy", "harmony", "narrative", "emotion", "uniqueness"],
-    },
-    pros: { type: Type.ARRAY, items: { type: Type.STRING }, description: "What works perfectly for the audience?" },
-    cons: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Constructive feedback on what kills the engagement." },
-    verdict: { type: Type.STRING, description: "A punchy, expert design verdict as a Creative Director." },
-    imageDescription: { type: Type.STRING, description: "Detailed visual breakdown." },
-    dominantColors: {
-      type: Type.ARRAY,
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          hex: { type: Type.STRING },
-          psychology: { type: Type.STRING, description: "Emotional impact of this color." }
-        },
-        required: ["hex", "psychology"]
-      },
-      description: "Extract exactly 4 distinct dominant colors (Main, Secondary, Accent, Background)."
-    },
-    colorEvaluation: { type: Type.STRING, description: "Overall color strategy analysis." },
-    textAnalysis: {
-      type: Type.OBJECT,
-      properties: {
-        detectedText: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Return ONLY the intended overlay text/headlines. Exclude ALL environmental text." },
-        fontEvaluation: { type: Type.STRING, description: "Psychological impact of the chosen fonts." },
-        sizeEvaluation: { type: Type.STRING },
-        placementEvaluation: { type: Type.STRING },
-        readabilityScore: { type: Type.INTEGER, description: "0-100 score for text clarity." },
-        recommendedFonts: { type: Type.ARRAY, items: { type: Type.STRING } }
-      },
-      required: ["detectedText", "fontEvaluation", "sizeEvaluation", "placementEvaluation", "readabilityScore", "recommendedFonts"],
-    },
-    platformOptimization: { type: Type.STRING }
-  },
-  required: ["score", "criteria", "pros", "cons", "verdict", "imageDescription", "dominantColors", "colorEvaluation", "textAnalysis"],
+// New Function: Validates key by making a lightweight API call
+export const validateApiKey = async (apiKey: string): Promise<boolean> => {
+  try {
+    const ai = new GoogleGenAI({ apiKey: apiKey });
+    // Minimal token count request to verify access without using heavy resources
+    await ai.models.generateContent({
+        model: ACTIVE_MODEL,
+        contents: [{ parts: [{ text: "ping" }] }],
+        config: { maxOutputTokens: 1 }
+    });
+    return true;
+  } catch (error: any) {
+    console.error("Key Validation Failed:", error);
+    return false;
+  }
 };
 
 async function fileToGenerativePart(file: File) {
@@ -71,12 +36,13 @@ async function fileToGenerativePart(file: File) {
 export const analyzeAsset = async (
     imageFile: File,
     mode: AnalysisMode,
-    context: VideoContextData
+    context: VideoContextData,
+    apiKey: string
 ): Promise<AnalysisResult> => {
     
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Initialize with the user-provided key
+    const ai = new GoogleGenAI({ apiKey: apiKey });
     
-    // Updated Persona: The "Dual-Mind" Approach
     const persona = `
     You are 'Vision Lab', the world's most sophisticated Design Audit AI.
     You possess a **Dual-Mind Architecture**:
@@ -93,27 +59,23 @@ export const analyzeAsset = async (
     `;
 
     const diagnosticLogic = `
-### ANALYSIS PROTOCOL (CHAIN OF THOUGHT):
+### ANALYSIS PROTOCOL:
 
-1. **LAYER SEPARATION (Technical Step):**
-   - **Foreground (Intentional):** Headlines, Arrows, Face expressions, Product shots.
-   - **Background (Noise):** T-shirts with text, street signs, random logos, blurry crowds.
-   - *INSTRUCTION:* When listing 'detectedText', STRICTLY IGNORE the Background layer. Only report the Foreground text meant for reading.
+1. **LAYER SEPARATION:**
+   - Detect Foreground vs Background text. 
+   - *INSTRUCTION:* When listing 'detectedText', STRICTLY IGNORE the Background layer (e.g. text on t-shirts, random signs). Only report the Foreground text.
 
-2. **THE "BLINK TEST" (Audience Step):**
-   - Simulate a viewer scrolling fast. Does the asset stop the scroll?
-   - If the main text is hard to read against the background, penalize the 'Legibility' score heavily.
-   - If the face looks bored or fake, penalize the 'Emotion' score.
+2. **THE "BLINK TEST":**
+   - Does the asset stop the scroll?
+   - If text is hard to read, penalize 'Legibility'.
+   - If the face looks bored, penalize 'Emotion'.
 
-3. **THE "DIRECTOR'S CRITIQUE" (Expert Step):**
-   - Analyze the **Visual Hierarchy**: Is the eye guided? (e.g., Face -> Headline -> CTA).
-   - Analyze **Color Harmony**: Identify EXACTLY 4 distinct dominant colors (e.g., Background, Subject, Text, CTA) and explain their psychological role.
-   - Analyze **Typography**: Is the font weight heavy enough? Is there enough negative space?
+3. **THE "DIRECTOR'S CRITIQUE":**
+   - Analyze Visual Hierarchy and Color Harmony.
+   - Identify EXACTLY 4 distinct dominant colors.
 
 4. **VERDICT GENERATION:**
-   - Combine the Audience's gut feeling with the Director's technical advice.
-   - Be direct. Do not fluff. If the design is cluttered, say "The hierarchy is broken."
-   - Give a score that reflects the *probability of success* in the real world.
+   - Be direct. Give a score that reflects the *probability of success*.
 `;
 
     const prompt = `
@@ -127,32 +89,95 @@ ${diagnosticLogic}
 - Creator Intent: ${context.description || "Maximize viewer retention and click-through rate."}
 
 **OUTPUT INSTRUCTION:**
-Return strictly valid JSON. Do not include markdown code blocks. Ensure 'dominantColors' contains exactly 4 items.
+You MUST return a valid JSON object. 
+DO NOT use markdown code blocks (like \`\`\`json). 
+Just return the raw JSON string.
+
+Structure:
+{
+  "score": integer (0-100),
+  "criteria": {
+    "clarity": integer,
+    "contrast": integer,
+    "legibility": integer,
+    "hierarchy": integer,
+    "harmony": integer,
+    "narrative": integer,
+    "emotion": integer,
+    "uniqueness": integer
+  },
+  "pros": [string array],
+  "cons": [string array],
+  "verdict": string,
+  "imageDescription": string,
+  "dominantColors": [{ "hex": string, "psychology": string }] (exactly 4 items),
+  "colorEvaluation": string,
+  "textAnalysis": {
+    "detectedText": [string array],
+    "fontEvaluation": string,
+    "sizeEvaluation": string,
+    "placementEvaluation": string,
+    "readabilityScore": integer (0-100),
+    "recommendedFonts": [string array]
+  },
+  "platformOptimization": string
+}
 `;
 
     const imagePart = await fileToGenerativePart(imageFile);
 
     try {
-        const response = await ai.models.generateContent({
-            model: ACTIVE_MODEL,
-            contents: [{ parts: [ { text: prompt }, imagePart ] }],
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: analysisSchema,
-                temperature: 0.3, // Slightly higher creativity for the "Critique" persona
-            }
-        });
+        // Create a timeout promise (45s)
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Analysis timed out. The server is taking too long to respond.")), 45000)
+        );
+
+        // Race the API call against the timeout
+        const response: any = await Promise.race([
+            ai.models.generateContent({
+                model: ACTIVE_MODEL,
+                contents: [{ parts: [ { text: prompt }, imagePart ] }],
+                // Removed responseSchema to improve stability with Vision models
+                config: {
+                    temperature: 0.4,
+                }
+            }),
+            timeoutPromise
+        ]);
         
-        const responseText = response.text;
+        let responseText = response.text;
         if (!responseText) throw new Error("Analysis failed - empty response.");
-        const data = JSON.parse(responseText);
-        return { ...data, mode };
+        
+        // Robust cleaning: remove markdown and extract JSON
+        responseText = responseText.replace(/```json\n?|\n?```/g, '').trim();
+        const jsonStart = responseText.indexOf('{');
+        const jsonEnd = responseText.lastIndexOf('}');
+        
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+            responseText = responseText.substring(jsonStart, jsonEnd + 1);
+        }
+
+        try {
+            const data = JSON.parse(responseText);
+            return { ...data, mode };
+        } catch (jsonError) {
+            console.error("JSON Parse Error:", jsonError, "Raw Text:", responseText);
+            throw new Error("The AI returned malformed data. Please try again.");
+        }
 
     } catch (error: any) {
         console.error("AI Lab Error:", error);
+        
         if (error.message?.includes("429")) {
-          throw new Error("Server busy. Please wait a moment and try again.");
+          throw new Error("System busy (429). Please wait 30 seconds and try again.");
         }
-        throw new Error("Diagnostic failed. Please try again.");
+        if (error.message?.includes("403") || error.message?.includes("API key")) {
+          throw new Error("AUTH_FAILED"); // Special code to trigger re-auth in UI
+        }
+        if (error.message?.includes("timed out")) {
+            throw error;
+        }
+        
+        throw new Error("Diagnostic engine failed. Please verify your internet connection and API key.");
     }
 };

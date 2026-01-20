@@ -34,16 +34,16 @@ const CriteriaBar: React.FC<{ label: string; targetValue: number; delay: number 
   return (
     <div className="space-y-1.5 w-full group">
       <div className="flex justify-between items-end">
-        <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-slate-400 group-hover:text-slate-600 transition-colors">
+        <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-300 transition-colors">
           {label}
         </span>
-        <span className="text-[11px] font-mono font-bold text-slate-900 tabular-nums">
+        <span className="text-[11px] font-mono font-bold text-slate-200 tabular-nums">
           {displayValue}%
         </span>
       </div>
-      <div className="h-1.5 w-full bg-slate-100/80 rounded-full overflow-hidden relative">
+      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden relative">
         <div 
-          className="h-full bg-blue-600 transition-all duration-[1200ms] cubic-bezier(0.34, 1.56, 0.64, 1) rounded-full"
+          className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-[1200ms] cubic-bezier(0.34, 1.56, 0.64, 1) rounded-full"
           style={{ width: `${width}%` }}
         />
       </div>
@@ -78,24 +78,24 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
         {/* LEFT COLUMN: THUMBNAIL & VERDICT */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           {/* THUMBNAIL CARD */}
-          <section className="relative rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-white aspect-video flex-shrink-0">
-            <img src={previewUrl} className="w-full h-full object-cover" alt="Audit" />
-            <div className="absolute inset-x-0 top-0 h-[1px] bg-blue-600/20 animate-scan pointer-events-none" />
+          <section className="relative rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-slate-900 aspect-video flex-shrink-0">
+            <img src={previewUrl} className="w-full h-full object-cover opacity-90" alt="Audit" />
+            <div className="absolute inset-x-0 top-0 h-[1px] bg-blue-400/50 animate-scan pointer-events-none shadow-[0_0_15px_rgba(96,165,250,0.8)]" />
           </section>
 
           {/* VERDICT CARD */}
-          <section className="flex-grow border border-slate-100 rounded-xl p-8 bg-white shadow-sm border-l-4 border-l-blue-600 flex flex-col justify-center">
-             <h3 className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">Diagnostic Verdict</h3>
-             <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-snug">{result.verdict}</h2>
+          <section className="flex-grow border border-slate-800 rounded-xl p-8 bg-slate-900 shadow-lg border-l-4 border-l-blue-500 flex flex-col justify-center">
+             <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">Diagnostic Verdict</h3>
+             <h2 className="text-xl font-semibold text-slate-100 tracking-tight leading-snug">{result.verdict}</h2>
           </section>
         </div>
 
         {/* RIGHT COLUMN: SCORE CARD (FULL HEIGHT OF LEFT COLUMN) */}
         <div className="lg:col-span-4 h-full">
-          <section className="h-full border border-slate-100 rounded-xl p-8 bg-white shadow-sm flex flex-col items-center justify-between">
+          <section className="h-full border border-slate-800 rounded-xl p-8 bg-slate-900 shadow-lg flex flex-col items-center justify-between">
             <div className="text-center w-full">
-              <h3 className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.25em]">Psychological Score</h3>
-              <p className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter mt-1">Cognitive Impact Diagnostic</p>
+              <h3 className="text-[10px] font-bold text-slate-100 uppercase tracking-[0.25em]">Psychological Score</h3>
+              <p className="text-[9px] text-slate-500 font-medium uppercase tracking-tighter mt-1">Cognitive Impact Diagnostic</p>
             </div>
             
             <div className="py-8">
@@ -112,56 +112,56 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
       </div>
 
       {/* ROW 2: TYPOGRAPHY (FULL WIDTH) */}
-      <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-50 pb-6 mb-6">
+      <section className="border border-slate-800 rounded-xl p-8 bg-slate-900 shadow-lg">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-6 mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900">Typography & Text Load Diagnostic</h3>
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-200">Typography & Text Load Diagnostic</h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[9px] font-bold text-slate-400 uppercase">Readability Index:</span>
-            <span className="text-sm font-mono font-bold text-blue-600">{result.textAnalysis.readabilityScore}%</span>
+            <span className="text-[9px] font-bold text-slate-500 uppercase">Readability Index:</span>
+            <span className="text-sm font-mono font-bold text-blue-400">{result.textAnalysis.readabilityScore}%</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div className="space-y-4">
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Detected Symbols & Text</p>
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Detected Symbols & Text</p>
             <div className="flex flex-wrap gap-2">
               {result.textAnalysis.detectedText.length > 0 ? (
                 result.textAnalysis.detectedText.map((t, i) => (
-                  <span key={i} className="px-2 py-1 bg-slate-50 border border-slate-100 rounded text-[11px] font-medium text-slate-600">"{t}"</span>
+                  <span key={i} className="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[11px] font-medium text-slate-300">"{t}"</span>
                 ))
               ) : (
-                <span className="text-[11px] italic text-slate-400">No textual symbols detected.</span>
+                <span className="text-[11px] italic text-slate-600">No textual symbols detected.</span>
               )}
             </div>
           </div>
           <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Font Psychology</p>
-              <p className="text-[13px] text-slate-600 leading-relaxed">{result.textAnalysis.fontEvaluation}</p>
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Font Psychology</p>
+              <p className="text-[13px] text-slate-300 leading-relaxed">{result.textAnalysis.fontEvaluation}</p>
             </div>
             <div className="space-y-2">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Placement & Scale</p>
-              <p className="text-[13px] text-slate-600 leading-relaxed">{result.textAnalysis.placementEvaluation} {result.textAnalysis.sizeEvaluation}</p>
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Placement & Scale</p>
+              <p className="text-[13px] text-slate-300 leading-relaxed">{result.textAnalysis.placementEvaluation} {result.textAnalysis.sizeEvaluation}</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ROW 3: COLOR PALETTE (FULL WIDTH) */}
-      <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm">
-        <div className="flex items-center gap-3 border-b border-slate-50 pb-6 mb-6">
-          <div className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900">Color Palette & Emotional Anchors</h3>
+      <section className="border border-slate-800 rounded-xl p-8 bg-slate-900 shadow-lg">
+        <div className="flex items-center gap-3 border-b border-slate-800 pb-6 mb-6">
+          <div className="w-1.5 h-1.5 rounded-full bg-teal-500 shadow-[0_0_8px_rgba(20,184,166,0.8)]" />
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-200">Color Palette & Emotional Anchors</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {result.dominantColors.map((c, i) => (
-            <div key={i} className="space-y-3 p-4 rounded-xl bg-slate-50/50 border border-slate-100/50">
+            <div key={i} className="space-y-3 p-4 rounded-xl bg-slate-950/50 border border-slate-800/50">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg shadow-sm" style={{ backgroundColor: c.hex }} />
-                <span className="text-[11px] font-mono font-bold text-slate-900">{c.hex}</span>
+                <div className="w-8 h-8 rounded-lg shadow-sm border border-slate-700/30" style={{ backgroundColor: c.hex }} />
+                <span className="text-[11px] font-mono font-bold text-slate-300">{c.hex}</span>
               </div>
               <p className="text-[12px] text-slate-500 leading-tight">{c.psychology}</p>
             </div>
@@ -171,23 +171,23 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
 
       {/* ROW 4: OBSERVATIONS & REFINEMENTS (2 COLUMNS) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm space-y-6">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900 flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-teal-500" /> Observations
+        <section className="border border-slate-800 rounded-xl p-8 bg-slate-900 shadow-lg space-y-6">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-200 flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-teal-500 shadow-[0_0_5px_rgba(20,184,166,0.8)]" /> Observations
           </h3>
           <ul className="space-y-3">
             {result.pros.map((p, i) => (
-              <li key={i} className="flex gap-4 items-start text-[13px] text-slate-600"><span className="mt-1.5 w-1 h-1 rounded-full bg-slate-200 shrink-0" />{p}</li>
+              <li key={i} className="flex gap-4 items-start text-[13px] text-slate-400"><span className="mt-1.5 w-1 h-1 rounded-full bg-slate-700 shrink-0" />{p}</li>
             ))}
           </ul>
         </section>
-        <section className="border border-slate-100 rounded-xl p-8 bg-white shadow-sm space-y-6">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-900 flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-blue-500" /> Refinements
+        <section className="border border-slate-800 rounded-xl p-8 bg-slate-900 shadow-lg space-y-6">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-200 flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]" /> Refinements
           </h3>
           <ul className="space-y-3">
             {result.cons.map((c, i) => (
-              <li key={i} className="flex gap-4 items-start text-[13px] text-slate-600"><span className="mt-1.5 w-1 h-1 rounded-full bg-slate-200 shrink-0" />{c}</li>
+              <li key={i} className="flex gap-4 items-start text-[13px] text-slate-400"><span className="mt-1.5 w-1 h-1 rounded-full bg-slate-700 shrink-0" />{c}</li>
             ))}
           </ul>
         </section>
@@ -197,7 +197,7 @@ export const AnalysisResultDisplay: React.FC<AnalysisResultDisplayProps> = ({ re
       <div className="pt-4">
         <button 
           onClick={onReset} 
-          className="w-full py-6 rounded-xl bg-slate-900 text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-slate-800 transition-all active:scale-[0.99] shadow-xl hover:shadow-slate-200"
+          className="w-full py-6 rounded-xl bg-slate-800 text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-slate-700 transition-all active:scale-[0.99] shadow-lg border border-slate-700"
         >
           Start New Audit Protocol
         </button>
