@@ -23,9 +23,9 @@ const analysisSchema = {
       },
       required: ["clarity", "contrast", "legibility", "hierarchy", "harmony", "narrative", "emotion", "uniqueness"],
     },
-    pros: { type: Type.ARRAY, items: { type: Type.STRING } },
-    cons: { type: Type.ARRAY, items: { type: Type.STRING } },
-    verdict: { type: Type.STRING, description: "A punchy, expert design verdict." },
+    pros: { type: Type.ARRAY, items: { type: Type.STRING }, description: "What works perfectly for the audience?" },
+    cons: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Constructive feedback on what kills the engagement." },
+    verdict: { type: Type.STRING, description: "A punchy, expert design verdict as a Creative Director." },
     imageDescription: { type: Type.STRING, description: "Detailed visual breakdown." },
     dominantColors: {
       type: Type.ARRAY,
@@ -37,12 +37,13 @@ const analysisSchema = {
         },
         required: ["hex", "psychology"]
       },
+      description: "Extract exactly 4 distinct dominant colors (Main, Secondary, Accent, Background)."
     },
     colorEvaluation: { type: Type.STRING, description: "Overall color strategy analysis." },
     textAnalysis: {
       type: Type.OBJECT,
       properties: {
-        detectedText: { type: Type.ARRAY, items: { type: Type.STRING } },
+        detectedText: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Return ONLY the intended overlay text/headlines. Exclude ALL environmental text." },
         fontEvaluation: { type: Type.STRING, description: "Psychological impact of the chosen fonts." },
         sizeEvaluation: { type: Type.STRING },
         placementEvaluation: { type: Type.STRING },
@@ -75,27 +76,58 @@ export const analyzeAsset = async (
     
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
-    const baseSystemPrompt = mode === 'YOUTUBE' 
-      ? "You are a YouTube Thumbnail Psychology Expert. Focus on Click-Through Rate (CTR), human facial psychology, and the 'Rule of Thirds'. Analyze if text is too crowded or just right for mobile viewing."
-      : "You are a Digital Advertising Psychology Specialist. Focus on Call-to-Action (CTA) prominence, visual anchoring, and how typography influences trust and conversion in banners.";
+    // Updated Persona: The "Dual-Mind" Approach
+    const persona = `
+    You are 'Vision Lab', the world's most sophisticated Design Audit AI.
+    You possess a **Dual-Mind Architecture**:
+    
+    1. **MIND A: The Impatient Audience (The Lizard Brain)**
+       - You scan the image in 0.5 seconds.
+       - You are emotional, easily bored, and judgmental.
+       - You ask: "Is this boring? Do I click? Do I understand instantly?"
+    
+    2. **MIND B: The Creative Director (The Expert Brain)**
+       - You analyze *why* Mind A reacted that way.
+       - You use technical terms (Kerning, Leading, Rule of Thirds, Color Theory, Gestalt).
+       - You provide actionable, tough love feedback to the designer.
+    `;
 
     const diagnosticLogic = `
-Analyze the asset using 'Cognitive Load Theory'. 
-- **Typography Audit:** Detect all text. Evaluate if font styles match the brand emotion. Is text readable at small scales?
-- **Color Psychology:** Explain why the dominant colors were chosen and their subconscious effect on the viewer.
-- **Visual Hierarchy:** Determine where the eye lands first (Anchor point).
-- **Scoring:** Assign the 'score' based on how effectively these psychological elements work together.
+### ANALYSIS PROTOCOL (CHAIN OF THOUGHT):
+
+1. **LAYER SEPARATION (Technical Step):**
+   - **Foreground (Intentional):** Headlines, Arrows, Face expressions, Product shots.
+   - **Background (Noise):** T-shirts with text, street signs, random logos, blurry crowds.
+   - *INSTRUCTION:* When listing 'detectedText', STRICTLY IGNORE the Background layer. Only report the Foreground text meant for reading.
+
+2. **THE "BLINK TEST" (Audience Step):**
+   - Simulate a viewer scrolling fast. Does the asset stop the scroll?
+   - If the main text is hard to read against the background, penalize the 'Legibility' score heavily.
+   - If the face looks bored or fake, penalize the 'Emotion' score.
+
+3. **THE "DIRECTOR'S CRITIQUE" (Expert Step):**
+   - Analyze the **Visual Hierarchy**: Is the eye guided? (e.g., Face -> Headline -> CTA).
+   - Analyze **Color Harmony**: Identify EXACTLY 4 distinct dominant colors (e.g., Background, Subject, Text, CTA) and explain their psychological role.
+   - Analyze **Typography**: Is the font weight heavy enough? Is there enough negative space?
+
+4. **VERDICT GENERATION:**
+   - Combine the Audience's gut feeling with the Director's technical advice.
+   - Be direct. Do not fluff. If the design is cluttered, say "The hierarchy is broken."
+   - Give a score that reflects the *probability of success* in the real world.
 `;
 
     const prompt = `
-${baseSystemPrompt}
+${persona}
+
 ${diagnosticLogic}
 
-**Context:**
-Type: ${context.assetType}
-Goal: ${context.description || "Optimization for engagement."}
+**ASSET CONTEXT:**
+- Type: ${context.assetType}
+- Title/Hook: "${context.title}"
+- Creator Intent: ${context.description || "Maximize viewer retention and click-through rate."}
 
-**Return strictly valid JSON according to the provided schema.**
+**OUTPUT INSTRUCTION:**
+Return strictly valid JSON. Do not include markdown code blocks. Ensure 'dominantColors' contains exactly 4 items.
 `;
 
     const imagePart = await fileToGenerativePart(imageFile);
@@ -107,7 +139,7 @@ Goal: ${context.description || "Optimization for engagement."}
             config: {
                 responseMimeType: "application/json",
                 responseSchema: analysisSchema,
-                temperature: 0.1,
+                temperature: 0.3, // Slightly higher creativity for the "Critique" persona
             }
         });
         
@@ -119,8 +151,8 @@ Goal: ${context.description || "Optimization for engagement."}
     } catch (error: any) {
         console.error("AI Lab Error:", error);
         if (error.message?.includes("429")) {
-          throw new Error("Quota exceeded. Please wait a minute and try again.");
+          throw new Error("Server busy. Please wait a moment and try again.");
         }
-        throw new Error(error.message || "Diagnostic failed. Please try again.");
+        throw new Error("Diagnostic failed. Please try again.");
     }
 };
